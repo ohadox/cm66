@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+
+<head>
+    <meta charset="utf-8">
+    <title>ממיר גיליון ציונים לחישוב ממוצע הצלחות</title>
+    <style>
+        .container {
+            height: 96%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .col {
+            float: right;
+            height: 70%;
+            margin: 1%;
+            width: 46%;
+        }
+        
+        textarea {
+            height: 100%;
+            width: 100%;
+        }
+        
+        #explanation {
+            margin: 1%;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="explanation">מאפשר לחשב ממוצע הצלחות באתר <a href="http://tx.technion.ac.il/~gai/cm" target="_blank">CM</a> ע"י שני שינויים בגיליון ציונים:<br>
+            <ol>
+                <li>משנה ציון עובר ל-100 ונכשל או לא השלים ל-0.</li>
+                <li>משנה מופע נוסף של קורס ע"י הוספת מספר המופע לתחילת מספר הקורס (בתוספת 3 אפסים להפרדה).</li>
+            </ol>
+            <b>הערות:</b>
+            <ul>
+                <li>לא נשלח לשרת שום מידע. אפשר לשמור דף זה ולהריץ ללא חיבור לאינטרנט.</li>
+                <li>אפשר לערוך את תיבת הטקסט הימנית. למשל אם רוצים לבדוק איך ישפיע כישלון רק במועד א' יש להעתיק את השורה של הקורס ולהדביק אותה מתחתיה ואז באתר CM להזין 0 במועד א' ו-100 במועד ב'.</li>
+                <li>ממוצע ההצלחות הוא מספר שלם ולכן יש לעגל את התוצאות באתר CM (אם הספרה הדצימלית הראשונה גדולה או שווה ל-5 לעגל למעלה, אחרת למטה).</li>
+            </ul>
+        </div>
+        <div class="col">הדבק לכאן גיליון ציונים<br>
+            <textarea id="input-textarea"></textarea ></div>
+        <div class="col">העתק מכאן והדבק באתר <a href="http://tx.technion.ac.il/~gai/cm" target="_blank">CM</a><br>
+            <textarea id="output-textarea"></textarea ></div>
+    </div>
+
+
+<script>
+    var GRADE_PATTERN = /(.+)\t\d{1,}.\d{1}\s*\t.+\s(\d{5,})/;
+    var NOT_COMPLETED = "םילשה אל";
+    var BINARY = "רבע";
+    var inText = document.getElementById("input-textarea");
+    var outText = document.getElementById("output-textarea");
+    var courses;
+    
+    function reset() {
+        courses = {};
+        outText.value = "";
+    }
+    
+    function parseInput(){
+        reset();
+        var lines = inText.value.split("\n");
+        for (var i = 0; i < lines.length; i++)
+            outText.value += parseLine(lines[i]) + "\n";
+        outText.value = outText.value.replace(/\n$/, "");
+    }
+    
+    function parseLine(line){
+      var matches = line.match(GRADE_PATTERN);
+      if (!(matches))
+          return line;
+      return line.replace(matches[1], parseGrade(matches[1])).replace(matches[2], parseCourseNumber(matches[2]));
+    }
+    
+    function parseGrade(grade){
+        var g = grade.replace("*","").trim();
+        if (isNaN(g)) {
+            switch (g) {
+                case BINARY:
+                    return 100;
+                case NOT_COMPLETED:
+                    return 0;
+                default:
+                    return grade;
+            }         
+        }
+        return g < 55 ? 0 : 100;    
+    }
+    
+    function parseCourseNumber(number){
+        if (!(number in courses)) {
+            courses[number] = 1;
+            return number;
+        }
+        courses[number] += 1
+        return courses[number] + "000" + number;
+    }
+    
+    inText.addEventListener("input", parseInput);
+    inText.addEventListener("scroll", function(){outText.scrollTop = inText.scrollTop;});
+    outText.addEventListener("scroll", function(){inText.scrollTop = outText.scrollTop;});
+    inText.value = "";
+    reset();
+    
+</script>
+    
+    </body>
