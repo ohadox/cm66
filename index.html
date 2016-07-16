@@ -15,7 +15,7 @@
         
         .col {
             float: right;
-            height: 70%;
+            height: 68%;
             margin: 1%;
             width: 46%;
         }
@@ -44,6 +44,7 @@
                 <li>לא נשלח לשרת שום מידע. אפשר לשמור דף זה ולהריץ ללא חיבור לאינטרנט.</li>
                 <li>אפשר לערוך את תיבת הטקסט הימנית. למשל אם רוצים לבדוק איך ישפיע כישלון רק במועד א' יש להעתיק את השורה של הקורס ולהדביק אותה מתחתיה ואז באתר CM להזין 0 במועד א' ו-100 במועד ב'.</li>
                 <li>ממוצע ההצלחות הוא מספר שלם ולכן יש לעגל את התוצאות באתר CM (אם הספרה הדצימלית הראשונה גדולה או שווה ל-5 לעגל למעלה, אחרת למטה).</li>
+                <li>טבלת הזיכויים (וכל המידע שמופיע לפניה) נמחקת כי אם מופיע שם ציון הוא משפיע על ממוצע ציונים אבל על ממוצע הצלחות הוא לא צריך להשפיע.</li>
             </ul>
         </div>
         <div class="col">הדבק לכאן גיליון ציונים<br>
@@ -57,6 +58,7 @@
     var GRADE_PATTERN = /(.+)\t\d{1,}.\d{1}\s*\t.+\s(\d{5,})/;
     var NOT_COMPLETED = "םילשה אל";
     var BINARY = "רבע";
+    var TOTAL_CREDITS_POINTS = 'יוכיז תודוקנ כ"הס';
     var inText = document.getElementById("input-textarea");
     var outText = document.getElementById("output-textarea");
     var courses;
@@ -68,6 +70,10 @@
     
     function parseInput(){
         reset();
+        // remove credits table (and all text before it) because if it contains numeric grade it will affect the success average (which is wrong)
+        var z = inText.value.indexOf(TOTAL_CREDITS_POINTS);
+        if (z != -1)
+            inText.value = inText.value.substr(inText.value.indexOf("\n", z+1));
         var lines = inText.value.split("\n");
         for (var i = 0; i < lines.length; i++)
             outText.value += parseLine(lines[i]) + "\n";
